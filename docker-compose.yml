@@ -1,0 +1,14 @@
+services:
+  db:
+      image: postgres:18.3-alpine3.23
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: localdev123
+        POSTGRES_DB: careerhub
+      ports:
+        - "5432:5432"
+      volumes:
+        - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
