@@ -1,26 +1,18 @@
-import os
 from logging.config import fileConfig
-from urllib.parse import quote_plus
 
-from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
 config = context.config
 
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-load_dotenv()
-
-user = quote_plus(os.environ["POSTGRES_USER"])
-password = quote_plus(os.environ["POSTGRES_PASSWORD"])
-host = os.environ["POSTGRES_HOST"]
-port = os.environ["POSTGRES_PORT"]
-db = os.environ["POSTGRES_DB"]
-config.set_main_option("sqlalchemy.url", f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}")
 
 # add your model's MetaData object here
 # for 'autogenerate' support
