@@ -21,7 +21,9 @@ if config.config_file_name is not None:
 
 from db.models.base import Base
 import db.models.users  # noqa: F401
-import db.models.application  # noqa: F401
+import db.models.address  # noqa: F401
+import db.models.companies  # noqa: F401
+import db.models.applications  # noqa: F401
 import db.models.jobs  # noqa: F401
 
 target_metadata = Base.metadata

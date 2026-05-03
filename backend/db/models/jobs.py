@@ -1,5 +1,7 @@
-from datetime import datetime as dt, timezone as tz
+from datetime import datetime
 from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy import func
+
 
 from db.models.base import Base
 
@@ -15,5 +17,7 @@ class JobPosting(Base):
     url: Mapped[str] = mapped_column(nullable=True)
 
     # Dates
-    date_posted: Mapped[dt] = mapped_column(nullable=True)
-    created_at: Mapped[dt] = mapped_column(default=dt.now(tz.utc), nullable=False)
+    date_posted: Mapped[datetime] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), nullable=False
+    )

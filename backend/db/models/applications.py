@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import enum
-from datetime import datetime as dt, timezone as tz
+from datetime import datetime
+from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from db.models.base import Base
+
+if TYPE_CHECKING:
+    from db.models.address import Address
+    from db.models.users import UserProfile
+    from db.models.jobs import JobPosting
 
 
 class ApplicationStatus(enum.Enum):
@@ -25,17 +32,27 @@ class Application(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profiles.id"), nullable=False)
-    status: Mapped[ApplicationStatus] = mapped_column(default=ApplicationStatus.APPLIED, nullable=False)
+    status: Mapped[ApplicationStatus] = mapped_column(
+        default=ApplicationStatus.APPLIED, nullable=False
+    )
     preference_level: Mapped[PreferenceLevel | None] = mapped_column(nullable=True)
     job_id: Mapped[int] = mapped_column(ForeignKey("job_postings.id"), nullable=False)
 
-    # Dates
-    applied_at: Mapped[dt] = mapped_column(nullable=False)
-    updated_at: Mapped[dt] = mapped_column(default=dt.now(tz.utc), onupdate=dt.now(tz.utc), nullable=False)
-    closed_at: Mapped[dt | None] = mapped_column(nullable=True)
+    # Current Location
+    current_location_id: Mapped[int | None] = mapped_column(
+        ForeignKey("addresses.id"), nullable=True
+    )
 
-    # Reltionship Objects
+    # Dates
+    applied_at: Mapped[datetime] = mapped_column(nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    closed_at: Mapped[datetime | None] = mapped_column(nullable=True)
+
+    # Relationships
     user: Mapped["UserProfile"] = relationship(
         "UserProfile", back_populates="applications"
     )
     job_posting: Mapped["JobPosting"] = relationship("JobPosting")
+    current_location: Mapped["Address | None"] = relationship("Address", uselist=False)
