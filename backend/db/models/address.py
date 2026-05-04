@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, func
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.base import Base
@@ -25,8 +24,6 @@ class Address(Base):
     region: Mapped[str | None] = mapped_column(String(100))
     country_code: Mapped[str | None] = mapped_column(String(2))
     label: Mapped[str | None] = mapped_column(String(255), nullable=True)
-
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     # Relationships
     user: Mapped["UserProfile | None"] = relationship(

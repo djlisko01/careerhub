@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey, func
+
 from db.models.base import Base
 
 if TYPE_CHECKING:
@@ -68,9 +69,6 @@ class Reminders(Base):
     reminder_date: Mapped[datetime] = mapped_column(nullable=False)
     message: Mapped[str | None] = mapped_column(nullable=True)
     is_completed: Mapped[bool] = mapped_column(default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
-    )
 
     # Relationships
     application: Mapped["Application"] = relationship(

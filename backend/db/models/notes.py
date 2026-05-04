@@ -1,7 +1,5 @@
-from datetime import datetime
-
-from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import ForeignKey, Text, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, Text, String
 
 from db.models.base import Base
 
@@ -17,12 +15,6 @@ class Note(Base):
         ForeignKey("applications.id"), nullable=False
     )
     content: Mapped[str] = mapped_column(Text)
-
-    # Dates
-    deleted_at: Mapped[datetime | None] = mapped_column(nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
-    )
 
     # relationships
     application: Mapped["Application"] = relationship(
