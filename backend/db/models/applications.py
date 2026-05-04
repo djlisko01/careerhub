@@ -11,7 +11,7 @@ from db.models.base import Base
 if TYPE_CHECKING:
     from db.models.address import Address
     from db.models.users import UserProfile
-    from db.models.jobs import JobPosting
+    from backend.db.models.jobpostings import JobPosting
 
 
 class ApplicationStatus(enum.Enum):
@@ -56,3 +56,23 @@ class Application(Base):
     )
     job_posting: Mapped["JobPosting"] = relationship("JobPosting")
     current_location: Mapped["Address | None"] = relationship("Address", uselist=False)
+
+
+class Reminders(Base):
+    __tablename__ = "reminders"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    application_id: Mapped[int] = mapped_column(
+        ForeignKey("applications.id"), nullable=False
+    )
+    reminder_date: Mapped[datetime] = mapped_column(nullable=False)
+    message: Mapped[str | None] = mapped_column(nullable=True)
+    is_completed: Mapped[bool] = mapped_column(default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), nullable=False
+    )
+
+    # Relationships
+    application: Mapped["Application"] = relationship(
+        "Application", back_populates="reminders"
+    )

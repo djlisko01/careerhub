@@ -20,11 +20,13 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 from db.models.base import Base
-import db.models.users  # noqa: F401
-import db.models.address  # noqa: F401
-import db.models.companies  # noqa: F401
-import db.models.applications  # noqa: F401
-import db.models.jobs  # noqa: F401
+import db.models.address
+import db.models.applications
+import db.models.attachments
+import db.models.companies
+import db.models.jobpostings
+import db.models.notes
+import db.models.users
 
 target_metadata = Base.metadata
 
