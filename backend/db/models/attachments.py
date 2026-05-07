@@ -1,23 +1,29 @@
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.base import Base
 
+if TYPE_CHECKING:
+    from db.models.applications import Application
+    from db.models.files import File
 
-class File(Base):
+
+class Attachment(Base):
     __tablename__ = "attachments"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
     application_id: Mapped[int] = mapped_column(
         ForeignKey("applications.id"), nullable=False
     )
-    filename: Mapped[str] = mapped_column(nullable=False)
-    file_path: Mapped[str] = mapped_column(nullable=False, unique=True)
     label: Mapped[str | None] = mapped_column(nullable=True)
-    file_metadata: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
 
     # relationships
+    file: Mapped["File"] = relationship("File", back_populates="attachments")
     application: Mapped["Application"] = relationship(
         "Application", back_populates="attachments"
     )

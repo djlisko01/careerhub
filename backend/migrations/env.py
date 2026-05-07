@@ -23,6 +23,7 @@ from db.models.base import Base
 import db.models.address
 import db.models.applications
 import db.models.attachments
+import db.models.files
 import db.models.companies
 import db.models.jobpostings
 import db.models.notes

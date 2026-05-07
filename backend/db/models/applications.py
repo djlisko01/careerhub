@@ -12,7 +12,9 @@ from db.models.base import Base
 if TYPE_CHECKING:
     from db.models.address import Address
     from db.models.users import UserProfile
-    from backend.db.models.jobpostings import JobPosting
+    from db.models.jobpostings import JobPosting
+    from db.models.attachments import Attachment
+    from db.models.notes import Note
 
 
 class ApplicationStatus(enum.Enum):
@@ -63,6 +65,15 @@ class Application(Base):
     )
     job_posting: Mapped["JobPosting"] = relationship("JobPosting")
     current_location: Mapped["Address | None"] = relationship("Address", uselist=False)
+    attachments: Mapped[list["Attachment"]] = relationship(
+        "Attachment", back_populates="application", cascade="all, delete-orphan"
+    )
+    notes: Mapped[list["Note"]] = relationship(
+        "Note", back_populates="application", cascade="all, delete-orphan"
+    )
+    reminders: Mapped[list["Reminders"]] = relationship(
+        "Reminders", back_populates="application", cascade="all, delete-orphan"
+    )
 
 
 class Reminders(Base):
