@@ -6,12 +6,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-from backend.db.models.principals import Principal
 from db.models.base import Base
+from db.models.principals import PrincipalType
 
 if TYPE_CHECKING:
     from db.models.address import Address
     from db.models.applications import Application
+    from db.models.principals import Principal
 
 
 class UserProfile(Base):
@@ -28,7 +29,6 @@ class UserProfile(Base):
         nullable=True,
     )
 
-    # Links this user to the principal system for attribution (e.g. created_by, updated_by)
     principal_id: Mapped[int] = mapped_column(
         ForeignKey("principals.id"), nullable=False, unique=True
     )
@@ -42,7 +42,7 @@ class UserProfile(Base):
         nullable=False,
     )
 
-    # Relationships
+    # ORM relationships
     applications: Mapped[list["Application"]] = relationship(
         "Application", back_populates="user", cascade="all, delete-orphan"
     )
@@ -52,13 +52,11 @@ class UserProfile(Base):
     current_address: Mapped["Address | None"] = relationship(
         "Address", foreign_keys="[UserProfile.current_address_id]", uselist=False
     )
-    principal: Mapped["Principal"] = relationship(
-        "Principal", back_populates="user_profile", uselist=False
-    )
+    principal: Mapped["Principal"] = relationship("Principal", uselist=False)
 
     @validates("principal")
     def validate_principal(self, key, principal):
-        if principal.principal_type != "HUMAN":
+        if principal.principal_type != PrincipalType.HUMAN:
             raise ValueError(
                 f"UserProfile principal must be HUMAN, got {principal.principal_type}"
             )

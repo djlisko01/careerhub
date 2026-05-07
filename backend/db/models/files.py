@@ -10,7 +10,6 @@ from db.models.base import Base
 
 if TYPE_CHECKING:
     from db.models.attachments import Attachment
-    from db.models.principals import Principal
 
 
 class File(Base):
@@ -27,4 +26,3 @@ class File(Base):
     attachments: Mapped[list["Attachment"]] = relationship(
         "Attachment", back_populates="file", cascade="all, delete-orphan"
     )
-    creator: Mapped["Principal"] = relationship("Principal")
