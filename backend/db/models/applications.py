@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, func, Enum as SQLAlchemyEnum
 
 from db.models.base import Base
 
@@ -34,10 +34,16 @@ class Application(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profiles.id"), nullable=False)
     status: Mapped[ApplicationStatus] = mapped_column(
-        default=ApplicationStatus.APPLIED, nullable=False
+        SQLAlchemyEnum(ApplicationStatus),
+        default=ApplicationStatus.APPLIED,
+        nullable=False,
     )
-    preference_level: Mapped[PreferenceLevel | None] = mapped_column(nullable=True)
-    job_id: Mapped[int] = mapped_column(ForeignKey("job_postings.id"), nullable=False)
+    preference_level: Mapped[PreferenceLevel | None] = mapped_column(
+        SQLAlchemyEnum(PreferenceLevel), nullable=True
+    )
+    job_post_id: Mapped[int] = mapped_column(
+        ForeignKey("job_postings.id"), nullable=False
+    )
 
     # Current Location
     current_location_id: Mapped[int | None] = mapped_column(

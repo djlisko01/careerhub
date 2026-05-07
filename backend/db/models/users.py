@@ -4,8 +4,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
+from backend.db.models.principals import Principal
 from db.models.base import Base
 
 if TYPE_CHECKING:
@@ -27,6 +28,11 @@ class UserProfile(Base):
         nullable=True,
     )
 
+    # Links this user to the principal system for attribution (e.g. created_by, updated_by)
+    principal_id: Mapped[int] = mapped_column(
+        ForeignKey("principals.id"), nullable=False, unique=True
+    )
+
     auth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     auth_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
@@ -46,6 +52,17 @@ class UserProfile(Base):
     current_address: Mapped["Address | None"] = relationship(
         "Address", foreign_keys="[UserProfile.current_address_id]", uselist=False
     )
+    principal: Mapped["Principal"] = relationship(
+        "Principal", back_populates="user_profile", uselist=False
+    )
+
+    @validates("principal")
+    def validate_principal(self, key, principal):
+        if principal.principal_type != "HUMAN":
+            raise ValueError(
+                f"UserProfile principal must be HUMAN, got {principal.principal_type}"
+            )
+        return principal
 
     def __repr__(self):
         return f"<UserProfile(id={self.id}, first_name='{self.first_name}', last_name='{self.last_name}')>"
