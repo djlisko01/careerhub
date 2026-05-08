@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import enum
 
-from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import Enum as SQLAlchemyEnum
+from sqlalchemy.orm import Mapped, mapped_column
 
-from db.models.base import BaseModel
+from db.models.base import TimestampedModel
 
 
 class PrincipalType(enum.Enum):
@@ -13,10 +13,10 @@ class PrincipalType(enum.Enum):
     AI_AGENT = "AI_AGENT"
 
 
-class Principal(BaseModel):
+class Principal(TimestampedModel):
     __tablename__ = "principals"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     principal_type: Mapped[PrincipalType] = mapped_column(
         SQLAlchemyEnum(PrincipalType), nullable=False
     )

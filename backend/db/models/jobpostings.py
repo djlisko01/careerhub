@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey
 
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 class JobPosting(TimestampedModel):
     __tablename__ = "job_postings"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey("companies.id"), nullable=False)
     location: Mapped[str] = mapped_column(nullable=True)

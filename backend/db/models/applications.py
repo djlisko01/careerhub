@@ -33,7 +33,7 @@ class PreferenceLevel(enum.Enum):
 class Application(BaseModel):
     __tablename__ = "applications"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profiles.id"), nullable=False)
     status: Mapped[ApplicationStatus] = mapped_column(
         SQLAlchemyEnum(ApplicationStatus),
@@ -79,7 +79,7 @@ class Application(BaseModel):
 class Reminders(TimestampedModel):
     __tablename__ = "reminders"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     application_id: Mapped[int] = mapped_column(
         ForeignKey("applications.id"), nullable=False
     )
