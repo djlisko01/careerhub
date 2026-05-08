@@ -3,22 +3,25 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, func
+from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from db.models.base import BaseModel
 from db.models.principals import PrincipalType
 
 if TYPE_CHECKING:
-    from db.models.address import Address
+    from db.models.address import Address, UserAddress
     from db.models.applications import Application
     from db.models.principals import Principal
 
 
 class UserProfile(BaseModel):
     __tablename__ = "user_profiles"
+    __table_args__ = (
+        UniqueConstraint("auth_provider", "auth_id", name="uq_user_auth"),
+    )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     linkedin_url: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -46,11 +49,11 @@ class UserProfile(BaseModel):
     applications: Mapped[list["Application"]] = relationship(
         "Application", back_populates="user", cascade="all, delete-orphan"
     )
-    addresses: Mapped[list["Address"]] = relationship(
-        "Address", foreign_keys="[Address.user_id]", back_populates="user"
+    addresses: Mapped[list["UserAddress"]] = relationship(
+        "UserAddress", back_populates="user", cascade="all, delete-orphan"
     )
     current_address: Mapped["Address | None"] = relationship(
-        "Address", foreign_keys="[UserProfile.current_address_id]", uselist=False
+        "Address", foreign_keys=[current_address_id], uselist=False
     )
     principal: Mapped["Principal"] = relationship("Principal", uselist=False)
 
