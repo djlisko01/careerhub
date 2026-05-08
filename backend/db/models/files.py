@@ -6,13 +6,13 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import Base
+from db.models.base import TimestampedModel
 
 if TYPE_CHECKING:
     from db.models.attachments import Attachment
 
 
-class File(Base):
+class File(TimestampedModel):
     __tablename__ = "files"
 
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey
 
-from db.models.base import Base
+from db.models.base import TimestampedModel
 
 if TYPE_CHECKING:
     from db.models.companies import Company
 
 
-class JobPosting(Base):
+class JobPosting(TimestampedModel):
     __tablename__ = "job_postings"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

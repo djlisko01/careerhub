@@ -19,7 +19,7 @@ config.set_main_option("sqlalchemy.url", settings.postgres_url)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from db.models.base import Base
+from db.models.base import BaseModel
 import db.models.address
 import db.models.applications
 import db.models.attachments
@@ -27,9 +27,10 @@ import db.models.files
 import db.models.companies
 import db.models.jobpostings
 import db.models.notes
+import db.models.principals
 import db.models.users
 
-target_metadata = Base.metadata
+target_metadata = BaseModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

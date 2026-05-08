@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import Base
+from db.models.base import BaseModel
 
 if TYPE_CHECKING:
     from db.models.address import Address
 
 
-class Company(Base):
+class Company(BaseModel):
     __tablename__ = "companies"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

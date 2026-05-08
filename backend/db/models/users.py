@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-from db.models.base import Base
+from db.models.base import BaseModel
 from db.models.principals import PrincipalType
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from db.models.principals import Principal
 
 
-class UserProfile(Base):
+class UserProfile(BaseModel):
     __tablename__ = "user_profiles"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

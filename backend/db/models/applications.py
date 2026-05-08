@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey, func, Enum as SQLAlchemyEnum
 
-from db.models.base import Base
+from db.models.base import BaseModel, TimestampedModel
 
 if TYPE_CHECKING:
     from db.models.address import Address
@@ -30,7 +30,7 @@ class PreferenceLevel(enum.Enum):
     HIGH = "high"
 
 
-class Application(Base):
+class Application(BaseModel):
     __tablename__ = "applications"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -76,7 +76,7 @@ class Application(Base):
     )
 
 
-class Reminders(Base):
+class Reminders(TimestampedModel):
     __tablename__ = "reminders"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)

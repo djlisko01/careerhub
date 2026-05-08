@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import Base
+from db.models.base import TimestampedModel
 
 if TYPE_CHECKING:
     from db.models.applications import Application
     from db.models.files import File
 
 
-class Attachment(Base):
+class Attachment(TimestampedModel):
     __tablename__ = "attachments"
 
     id: Mapped[int] = mapped_column(primary_key=True)

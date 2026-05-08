@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, Text, String
 
-from db.models.base import Base
+from db.models.base import TimestampedModel
 
 
-class Note(Base):
+class Note(TimestampedModel):
     __tablename__ = "notes"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
