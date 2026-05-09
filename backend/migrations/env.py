@@ -12,7 +12,10 @@ from sqlalchemy import pool
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", settings.postgres_url)
+# set_main_option passes values through ConfigParser, which uses %(...)s interpolation —
+# bare % signs must be escaped as %% to avoid InterpolationSyntaxError (e.g. percent-encoded
+# passwords). See: https://alembic.sqlalchemy.org/en/latest/api/config.html#alembic.config.Config.set_main_option
+config.set_main_option("sqlalchemy.url", settings.postgres_url.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
