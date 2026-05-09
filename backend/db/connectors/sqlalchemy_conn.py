@@ -5,14 +5,6 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from config import settings
 
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-
-from typing import Generator
-
-from config import settings
-
 # Engine: manages a pool of reusable database connections.
 # Created once at module level so the pool is shared across all requests.
 # If created per-request, you'd be spinning up a new pool every time (wasteful).
