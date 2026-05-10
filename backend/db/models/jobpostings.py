@@ -16,12 +16,9 @@ class JobPosting(TimestampedModel):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey("companies.id"), nullable=False)
-    location: Mapped[str] = mapped_column(nullable=True)
-    description: Mapped[str] = mapped_column(nullable=True)
-    post_url: Mapped[str] = mapped_column(nullable=True)
-
-    # Dates
-    date_posted: Mapped[datetime] = mapped_column(nullable=True)
+    location: Mapped[str | None] = mapped_column()
+    description: Mapped[str | None] = mapped_column()
+    post_url: Mapped[str | None] = mapped_column()
 
     # Relationships
     company: Mapped["Company"] = relationship("Company", back_populates="job_postings")

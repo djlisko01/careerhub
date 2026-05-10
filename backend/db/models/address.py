@@ -21,8 +21,12 @@ class UserAddress(TimestampedModel):
     is_primary: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     # Relationships
-    user: Mapped["UserProfile"] = relationship("UserProfile", back_populates="addresses")
-    address: Mapped["Address"] = relationship("Address", back_populates="user_addresses")
+    user: Mapped["UserProfile"] = relationship(
+        "UserProfile", back_populates="addresses"
+    )
+    address: Mapped["Address"] = relationship(
+        "Address", back_populates="user_addresses"
+    )
 
 
 class CompanyAddress(TimestampedModel):
@@ -34,7 +38,9 @@ class CompanyAddress(TimestampedModel):
 
     # Relationships
     company: Mapped["Company"] = relationship("Company", back_populates="addresses")
-    address: Mapped["Address"] = relationship("Address", back_populates="company_addresses")
+    address: Mapped["Address"] = relationship(
+        "Address", back_populates="company_addresses"
+    )
 
 
 class Address(TimestampedModel):
