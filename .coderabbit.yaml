@@ -1,0 +1,10 @@
+reviews:
+  request_changes_workflow: true  # blocks merge if CodeRabbit has unresolved issues
+  high_level_summary: true        # generates a PR summary automatically
+  tools:
+    gitleaks:
+      enabled: true   # scans for accidentally committed secrets
+    trufflehog:
+      enabled: true   # verifies secrets are actually valid/live
+      auto_approve_after_all_comments_resolved: true
+  
