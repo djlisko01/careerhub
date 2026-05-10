@@ -19,4 +19,35 @@ dev = [
     "ipython>=9.13.0",
     "jupyterlab>=3.2.1",
     "black>=22.3.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=6.0.0",
 ]
+
+# ── Pytest ────────────────────────────────────────────────────────────────────
+# MIN_COVERAGE = 0  ← raise to 80 (and update tool.coverage.report below) once real tests exist
+[tool.pytest.ini_options]
+minversion = "9.0"
+addopts = [
+    "-q",
+    "--no-header",
+    "--tb=short",
+    "--cov=.",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-fail-under=0",
+]
+
+# Test discovery
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+omit = ["tests/*", "migrations/*", "*/site-packages/*"]
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+skip_covered = true
