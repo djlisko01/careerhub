@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from db.models.principals import Principal, PrincipalType
 from db.models.users import UserProfile
-from db.services.user_profile_service import UserService
+from db.services.user_profile_service import InactiveUserError, UserService
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -141,6 +141,19 @@ class TestCreateUserProfile:
         assert result.linkedin_url is None
         assert result.github_url is None
 
+    def test_raises_on_duplicate_auth(self, user_service):
+        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+
+        added_objects = []
+        user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
+        user_service.db.flush.side_effect = make_flush_handler(added_objects)
+        user_service.db.commit.side_effect = IntegrityError(
+            statement=None, params=None, orig=Exception("duplicate key value")
+        )
+
+        with pytest.raises(IntegrityError):
+            user_service.create_user_profile(user_data)
+
     def test_raises_on_missing_params(self):
         with pytest.raises(ValidationError):
             user_schemas.UserCreateSchema()
@@ -153,6 +166,7 @@ class TestGetUserProfile:
             mock_user_create
         )
         result = user_service.get_user_profile_by_id(1)
+
         assert result == user_schemas.UserReponseSchema(
             id=1,
             first_name="John",
@@ -161,6 +175,52 @@ class TestGetUserProfile:
             github_url=None,
             active=True,
         )
+
+
+class TestUpdateUserProfile:
+
+    def test_updates_first_and_last_name(self, user_service, mock_user_create):
+        user_service.db.query.return_value.filter.return_value.one.return_value = (
+            mock_user_create
+        )
+        user_service.update_user_profile(id=1, first_name="Jane", last_name="Smith")
+
+        assert user_service.db.commit.called
+        assert mock_user_create.first_name == "Jane"
+        assert mock_user_create.last_name == "Smith"
+        assert mock_user_create.updated_at == FIXED_DATETIME
+
+    def test_updates_optional_urls(self, user_service, mock_user_create):
+        user_service.db.query.return_value.filter.return_value.one.return_value = (
+            mock_user_create
+        )
+        user_service.update_user_profile(
+            id=1,
+            linkedin_url="https://linkedin.com/in/jane",
+            github_url="https://github.com/jane",
+        )
+
+        assert user_service.db.commit.called
+        assert mock_user_create.linkedin_url == "https://linkedin.com/in/jane"
+        assert mock_user_create.github_url == "https://github.com/jane"
+        assert mock_user_create.updated_at == FIXED_DATETIME
+
+    def test_raises_when_user_not_found(self, user_service):
+        user_service.db.query.return_value.filter.return_value.one.side_effect = (
+            Exception("NoResultFound")
+        )
+        with pytest.raises(Exception, match="NoResultFound"):
+            user_service.update_user_profile(id=999, first_name="Jane")
+
+    def test_raises_when_user_inactive(self, user_service, mock_user_create):
+        mock_user_create.active = False
+        user_service.db.query.return_value.filter.return_value.one.return_value = (
+            mock_user_create
+        )
+        with pytest.raises(
+            InactiveUserError, match="Cannot update an inactive user profile."
+        ):
+            user_service.update_user_profile(id=1, first_name="Jane")
 
 
 class TestDeactivateUserProfile:

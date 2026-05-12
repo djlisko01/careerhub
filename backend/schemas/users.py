@@ -8,6 +8,13 @@ class UserCreateSchema(BaseModel):
     github_url: str | None = None
 
 
+class UserUpdateSchema(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    linkedin_url: str | None = None
+    github_url: str | None = None
+
+
 class UserReponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

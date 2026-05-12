@@ -9,6 +9,12 @@ from db.models.principals import PrincipalType
 import schemas.users as user_schemas
 
 
+class InactiveUserError(Exception):
+    """Exception raised when attempting to perform an action on an inactive user profile."""
+
+    pass
+
+
 @attrs.define
 class UserService:
     db: Session
@@ -48,6 +54,36 @@ class UserService:
         user_profile.active = True
         user_profile.updated_at = datetime.now(tz=tz.utc)
         self.db.commit()
+
+    def update_user_profile(self, id: int, **kwargs) -> user_schemas.UserReponseSchema:
+        """Update a user profile with the given data.
+
+        Args:
+            id: The primary key ID of the user profile to update.
+            **kwargs: The fields to update, passed as keyword arguments. Only fields
+                defined in `UserUpdateSchema` will be updated.
+
+        Returns:
+            A `UserReponseSchema` instance representing the updated user profile.
+
+        Raises:
+            NoResultFound: If no user profile is found with the given `id`.
+            InactiveUserError: If the user profile with the given `id` is inactive.
+            ValidationError: If any of the fields in `kwargs` are not valid according to
+                `UserUpdateSchema`.
+        """
+        user_schemas.UserUpdateSchema.model_validate(kwargs)
+
+        user = self.db.query(UserProfile).filter(UserProfile.id == id).one()
+
+        if not user.active:
+            raise InactiveUserError("Cannot update an inactive user profile.")
+
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+        user.updated_at = datetime.now(tz=tz.utc)
+        self.db.commit()
+        return user_schemas.UserReponseSchema.model_validate(user)
 
     def create_user_profile(
         self, user_data: user_schemas.UserCreateSchema
