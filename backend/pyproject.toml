@@ -27,8 +27,9 @@ dev = [
 # MIN_COVERAGE = 0  ← raise to 80 (and update tool.coverage.report below) once real tests exist
 [tool.pytest.ini_options]
 minversion = "9.0"
+pythonpath = ["."]
 addopts = [
-    "-q",
+    "-vq",
     "--no-header",
     "--tb=short",
     "--cov=.",

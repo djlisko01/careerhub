@@ -1,17 +1,15 @@
 import pytest
 from unittest.mock import MagicMock
-from services.user_profile import UserProfileService
+
+from db.services.user_profile_service import UserService
+
+import schemas.users as user_schemas
 
 
-@pytest.fixture
-def mock_dao():
-    return MagicMock()
-
-
-@pytest.fixture
-def user_profile_service(mock_dao):
+@pytest.fixture(autouse=True)
+def user_service():
     session = MagicMock()
-    return UserProfileService(session, mock_dao)
+    return UserService(db=session)
 
 
 class TestCreateUserProfile:
@@ -43,8 +41,28 @@ class TestCreateUserProfile:
 
 class TestGetUserProfileById:
 
-    def test_returns_profile_when_found(self):
-        pass
+    def test_returns_profile_when_found(self, user_service):
+        mock_profile = MagicMock()
+        mock_profile.id = 1
+        mock_profile.first_name = "John"
+        mock_profile.last_name = "Doe"
+        mock_profile.linkedin_url = None
+        mock_profile.github_url = None
+        mock_profile.active = True
+        user_service.db.query.return_value.filter.return_value.one.return_value = (
+            mock_profile
+        )
+
+        result = user_service.get_user_profile_by_id(1)
+
+        assert result == user_schemas.UserReponseSchema(
+            id=1,
+            first_name="John",
+            last_name="Doe",
+            linkedin_url=None,
+            github_url=None,
+            active=True,
+        )
 
     def test_raises_when_not_found(self):
         pass
