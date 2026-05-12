@@ -31,6 +31,24 @@ class UserService:
         user_profile.updated_at = datetime.now(tz=tz.utc)
         self.db.commit()
 
+    def reactivate_user(self, id: int) -> None:
+        """Reactivate a user profile by setting its `active` field to `True`.
+
+        Args:
+            id: The primary key ID of the user profile to reactivate.
+
+        Raises:
+            NoResultFound: If no user profile is found with the given `id`.
+        """
+        user_profile = self.db.query(UserProfile).filter(UserProfile.id == id).one()
+
+        if user_profile.active:
+            return
+
+        user_profile.active = True
+        user_profile.updated_at = datetime.now(tz=tz.utc)
+        self.db.commit()
+
     def create_user_profile(
         self, user_data: user_schemas.UserCreateSchema
     ) -> user_schemas.UserReponseSchema:
