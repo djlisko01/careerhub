@@ -1,15 +1,22 @@
 from unittest.mock import MagicMock
 
 import pytest
+from db.models.principals import Principal, PrincipalType
+from db.models.users import UserProfile
 from db.services.user_profile_service import UserService
 
 import schemas.users as user_schemas
 
 
-@pytest.fixture(autouse=True, scope="module")
+def get_mock_db() -> MagicMock:
+    mock_db = MagicMock()
+    return mock_db
+
+
+@pytest.fixture
 def user_service():
-    session = MagicMock()
-    return UserService(db=session)
+    db = get_mock_db()
+    return UserService(db=db)
 
 
 @pytest.fixture
@@ -29,8 +36,31 @@ class TestCreateUserProfile:
     def test_happy_path_returns_profile(self):
         pass
 
-    def test_creates_human_principal_before_profile(self):
-        pass
+    def test_creates_human_principal_before_profile(self, user_service):
+        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+
+        added_objects = []
+        user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
+
+        def on_flush():
+            for obj in added_objects:
+                if isinstance(obj, UserProfile) and obj.id is None:
+                    obj.id = 1
+                    obj.active = True
+
+        user_service.db.flush.side_effect = on_flush
+
+        user_service.create_user_profile(user_data)
+
+        add_calls = user_service.db.add.call_args_list
+        added_types = [type(call.args[0]) for call in add_calls]
+
+        assert Principal in added_types
+        assert UserProfile in added_types
+        assert added_types.index(Principal) < added_types.index(UserProfile)
+
+        principal = add_calls[added_types.index(Principal)].args[0]
+        assert principal.principal_type == PrincipalType.HUMAN
 
     def test_links_new_principal_id_to_profile(self):
         pass
