@@ -1,3 +1,21 @@
+"""Service layer for managing user profiles in the CareerHub database.
+
+This module provides the ``UserService`` class, which encapsulates all database
+operations related to user profile lifecycle management, including creation,
+retrieval, updates, and activation state changes.
+
+It also defines ``InactiveUserError``, a custom exception raised when a mutation
+is attempted on an inactive user profile.
+
+Classes:
+    UserService: Database service for CRUD and lifecycle operations on user profiles.
+
+Exceptions:
+    InactiveUserError: Raised when a mutation is attempted on an inactive user profile.
+"""
+
+from __future__ import annotations
+
 import attrs
 
 from sqlalchemy.orm import Session
@@ -17,6 +35,24 @@ class InactiveUserError(Exception):
 
 @attrs.define
 class UserService:
+    """Database service for managing ``UserProfile`` records.
+
+    Provides methods for creating, retrieving, updating, and toggling the
+    activation state of user profiles. Each instance is bound to a SQLAlchemy
+    ``Session``, which is used to execute all database operations.
+
+    Attributes:
+        db (Session): The SQLAlchemy database session used to execute queries
+            and persist changes.
+
+    Public Methods:
+        create_user_profile: Create a new user profile and its associated principal.
+        get_user_profile_by_id: Fetch a user profile by its primary key ID.
+        update_user_profile: Update fields on an existing active user profile.
+        deactivate_user: Mark a user profile as inactive.
+        reactivate_user: Restore a previously deactivated user profile to active.
+    """
+
     db: Session
 
     def deactivate_user(self, id: int) -> None:
