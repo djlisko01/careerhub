@@ -1,15 +1,27 @@
-import pytest
 from unittest.mock import MagicMock
 
+import pytest
 from db.services.user_profile_service import UserService
 
 import schemas.users as user_schemas
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="module")
 def user_service():
     session = MagicMock()
     return UserService(db=session)
+
+
+@pytest.fixture
+def mock_user_create():
+    mock_profile = MagicMock()
+    mock_profile.id = 1
+    mock_profile.first_name = "John"
+    mock_profile.last_name = "Doe"
+    mock_profile.linkedin_url = None
+    mock_profile.github_url = None
+    mock_profile.active = True
+    return mock_profile
 
 
 class TestCreateUserProfile:
@@ -32,27 +44,16 @@ class TestCreateUserProfile:
     def test_raises_on_duplicate_auth(self):
         pass
 
-    def test_raises_on_missing_first_name(self):
-        pass
-
-    def test_raises_on_missing_last_name(self):
+    def test_raises_on_missing_params(self):
         pass
 
 
 class TestGetUserProfileById:
 
-    def test_returns_profile_when_found(self, user_service):
-        mock_profile = MagicMock()
-        mock_profile.id = 1
-        mock_profile.first_name = "John"
-        mock_profile.last_name = "Doe"
-        mock_profile.linkedin_url = None
-        mock_profile.github_url = None
-        mock_profile.active = True
+    def test_returns_profile_when_found(self, user_service, mock_user_create):
         user_service.db.query.return_value.filter.return_value.one.return_value = (
-            mock_profile
+            mock_user_create
         )
-
         result = user_service.get_user_profile_by_id(1)
 
         assert result == user_schemas.UserReponseSchema(
@@ -63,9 +64,6 @@ class TestGetUserProfileById:
             github_url=None,
             active=True,
         )
-
-    def test_raises_when_not_found(self):
-        pass
 
 
 class TestGetUserProfileByAuth:
