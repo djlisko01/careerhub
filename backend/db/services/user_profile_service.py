@@ -1,6 +1,7 @@
 import attrs
 
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone as tz
 
 from db.models import UserProfile, Principal
 from db.models.principals import PrincipalType
@@ -11,6 +12,24 @@ import schemas.users as user_schemas
 @attrs.define
 class UserService:
     db: Session
+
+    def deactivate_user(self, id: int) -> None:
+        """Deactivate a user profile by setting its `active` field to `False`.
+
+        Args:
+            id: The primary key ID of the user profile to deactivate.
+
+        Raises:
+            NoResultFound: If no user profile is found with the given `id`.
+        """
+        user_profile = self.db.query(UserProfile).filter(UserProfile.id == id).one()
+
+        if not user_profile.active:
+            return
+
+        user_profile.active = False
+        user_profile.updated_at = datetime.now(tz=tz.utc)
+        self.db.commit()
 
     def create_user_profile(
         self, user_data: user_schemas.UserCreateSchema
