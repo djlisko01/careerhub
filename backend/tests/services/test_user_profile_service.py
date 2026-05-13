@@ -176,6 +176,14 @@ class TestGetUserProfile:
             active=True,
         )
 
+    def test_returns_none_when_not_found_and_raise_err_false(self, user_service):
+        user_service.db.query.return_value.filter.return_value.one_or_none.return_value = (
+            None
+        )
+        result = user_service.get_user_profile_by_id(999, raise_err=False)
+
+        assert result is None
+
 
 class TestUpdateUserProfile:
 
