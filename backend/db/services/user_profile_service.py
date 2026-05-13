@@ -108,14 +108,14 @@ class UserService:
             ValidationError: If any of the fields in `kwargs` are not valid according to
                 `UserUpdateSchema`.
         """
-        user_schemas.UserUpdateSchema.model_validate(kwargs)
+        payload = user_schemas.UserUpdateSchema.model_validate(kwargs, extra="forbid")
 
         user = self.db.query(UserProfile).filter(UserProfile.id == id).one()
 
         if not user.active:
             raise InactiveUserError("Cannot update an inactive user profile.")
 
-        for key, value in kwargs.items():
+        for key, value in payload.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
         user.updated_at = datetime.now(tz=tz.utc)
         self.db.commit()
