@@ -24,6 +24,12 @@ class UserProfile(BaseModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    # Security Fields
+    password_hash: Mapped[str | None] = mapped_column(String(255))
+    username: Mapped[str] = mapped_column(String(50), unique=True)
+
+    # Optional Fields
     linkedin_url: Mapped[str] = mapped_column(String(255), nullable=True)
     github_url: Mapped[str] = mapped_column(String(255), nullable=True)
     active: Mapped[bool] = mapped_column(default=True, nullable=False)
