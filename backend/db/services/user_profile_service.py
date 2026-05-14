@@ -17,14 +17,17 @@ Exceptions:
 from __future__ import annotations
 
 import attrs
-
-from sqlalchemy.orm import Session
 from datetime import datetime, timezone as tz
+
+from pwdlib import PasswordHash
+from sqlalchemy.orm import Session
 
 from db.models import UserProfile, Principal
 from db.models.principals import PrincipalType
 
 import schemas.users as user_schemas
+
+RECOMMENDED_HASHER = PasswordHash.recommended()
 
 
 class InactiveUserError(Exception):
@@ -135,6 +138,8 @@ class UserService:
         user_profile = UserProfile(
             first_name=user_data.first_name,
             last_name=user_data.last_name,
+            username=user_data.username,
+            password_hash=hash_password(user_data.password),
             linkedin_url=user_data.linkedin_url,
             github_url=user_data.github_url,
             principal_id=principal.id,
@@ -179,3 +184,62 @@ class UserService:
             if user_profile
             else None
         )
+
+    def username_exists(self, username: str) -> bool:
+        """Check if a user profile with the given username already exists.
+
+        Args:
+            username: The username to check for existence.
+        Returns:
+            True if a user profile with the given username exists, False otherwise.
+        """
+        return (
+            self.db.query(UserProfile).filter(UserProfile.username == username).first()
+            is not None
+        )
+
+    def authenticate_user(
+        self, username: str, password: str
+    ) -> user_schemas.UserReponseSchema | None:
+        """Verify credentials and return the user if valid.
+
+        Args:
+            username: The username to look up.
+            password: The plaintext password to verify.
+
+        Returns:
+            A `UserReponseSchema` if credentials are valid, otherwise `None`.
+        """
+        user = (
+            self.db.query(UserProfile).filter(UserProfile.username == username).first()
+        )
+        if not user or not user.password_hash:
+            return None
+        if not verify_password(password, user.password_hash):
+            return None
+        return user_schemas.UserReponseSchema.model_validate(user)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a plaintext password against a hashed password.
+
+    Args:
+        plain_password: The plaintext password to verify.
+        hashed_password: The hashed password to compare against.
+
+    Returns:
+        True if the plaintext password matches the hashed password, False otherwise.
+    """
+    return RECOMMENDED_HASHER.verify(plain_password, hashed_password)
+
+
+def hash_password(password: str) -> str:
+    """Hash a plaintext password using a secure hashing algorithm.
+
+    Args:
+        password: The plaintext password to hash.
+
+    Returns:
+        A securely hashed version of the input password.
+    """
+    return RECOMMENDED_HASHER.hash(password)
