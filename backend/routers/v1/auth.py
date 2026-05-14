@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from backend.core.security import create_access_token
-from backend.db.connectors.sqlalchemy_conn import get_db
-from backend.db.services.user_profile_service import UserService
-from backend.schemas.users import TokenSchema, UserCreateSchema, UserReponseSchema
+from core.security import create_access_token
+from db.connectors.sqlalchemy_conn import get_db
+from db.services.user_profile_service import UserService
+from schemas.users import TokenSchema, UserCreateSchema, UserReponseSchema
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-router = APIRouter(prefix="/", tags=["auth"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+router = APIRouter(tags=["auth"])
 
 
 def get_user_service(db=Depends(get_db)) -> UserService:

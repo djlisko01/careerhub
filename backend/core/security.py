@@ -2,10 +2,12 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from backend.config import settings
+from config import settings
 
 
-def create_access_token(subject: int | str, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    subject: int | str, expires_delta: timedelta | None = None
+) -> str:
     expire = datetime.now(timezone.utc) + (
         expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
