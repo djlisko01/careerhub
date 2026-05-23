@@ -51,7 +51,7 @@ def register_user(
 
 
 @router.post("/login", response_model=TokenSchema, status_code=201)
-def get_token(
+def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     user_service: UserService = Depends(get_user_service),
 ) -> TokenSchema:
