@@ -9,31 +9,11 @@ from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 
 import schemas.users as user_schemas
-
-FIXED_DATETIME = datetime(2024, 1, 1, tzinfo=tz.utc)
-
-
-@pytest.fixture(autouse=True, scope="module")
-def patch_datetime():
-    class FixedDateTime(datetime):
-        @classmethod
-        def now(cls, tz=None):
-            return datetime(2024, 1, 1, tzinfo=tz)
-
-    with pytest.MonkeyPatch.context() as mp:
-        mp.setattr("db.services.user_profile_service.datetime", FixedDateTime)
-        yield
-
-
-def get_mock_db() -> MagicMock:
-    mock_db = MagicMock()
-    return mock_db
-
+from tests.services.conftest import FIXED_DATETIME
 
 @pytest.fixture
-def user_service():
-    db = get_mock_db()
-    return UserService(db=db)
+def user_service(get_mock_db):
+    return UserService(db=get_mock_db)
 
 
 @pytest.fixture
