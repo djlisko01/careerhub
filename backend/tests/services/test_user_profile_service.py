@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 
 import schemas.users as user_schemas
 from tests.services.conftest import FIXED_DATETIME
+from tests.services.conftest import make_flush_handler as _make_flush_handler
 
 @pytest.fixture
 def user_service(get_mock_db):
@@ -29,15 +30,13 @@ def mock_user_create():
 
 
 def make_flush_handler(added_objects, principal_id=99, profile_id=1):
-    def on_flush():
-        for obj in added_objects:
-            if isinstance(obj, Principal) and obj.id is None:
-                obj.id = principal_id
-            if isinstance(obj, UserProfile) and obj.id is None:
-                obj.id = profile_id
-                obj.active = True
-
-    return on_flush
+    return _make_flush_handler(
+        added_objects,
+        {
+            Principal: {"id": principal_id},
+            UserProfile: {"id": profile_id, "active": True},
+        },
+    )
 
 
 class TestCreateUserProfile:

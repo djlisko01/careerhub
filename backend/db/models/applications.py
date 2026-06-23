@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 
 class ApplicationStatus(enum.Enum):
+    DRAFT = "draft"
     APPLIED = "applied"
     INTERVIEWING = "interviewing"
     OFFERED = "offered"
@@ -37,7 +38,7 @@ class Application(BaseModel):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profiles.id"), nullable=False)
     status: Mapped[ApplicationStatus] = mapped_column(
         SQLAlchemyEnum(ApplicationStatus),
-        default=ApplicationStatus.APPLIED,
+        default=ApplicationStatus.DRAFT,
         nullable=False,
     )
     preference_level: Mapped[PreferenceLevel | None] = mapped_column(
@@ -53,7 +54,10 @@ class Application(BaseModel):
     )
 
     # Dates
-    applied_at: Mapped[datetime] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), nullable=False
+    )
+    applied_at: Mapped[datetime] = mapped_column(nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now(), nullable=False
     )
