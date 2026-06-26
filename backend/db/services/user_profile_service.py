@@ -55,16 +55,16 @@ class UserService:
 
     db: Session
 
-    def deactivate_user(self, id: int) -> None:
+    def deactivate_user(self, user_id: int) -> None:
         """Deactivate a user profile by setting its `active` field to `False`.
 
         Args:
-            id: The primary key ID of the user profile to deactivate.
+            user_id: The primary key ID of the user profile to deactivate.
 
         Raises:
-            NoResultFound: If no user profile is found with the given `id`.
+            NoResultFound: If no user profile is found with the given `user_id`.
         """
-        user_profile = self.db.query(UserProfile).filter(UserProfile.id == id).one()
+        user_profile = self.db.query(UserProfile).filter(UserProfile.id == user_id).one()
 
         if not user_profile.active:
             return 
@@ -73,16 +73,16 @@ class UserService:
         user_profile.principal.soft_delete()
         self.db.commit()
 
-    def reactivate_user(self, id: int) -> None:
+    def reactivate_user(self, user_id: int) -> None:
         """Reactivate a user profile by setting its `active` field to `True`.
 
         Args:
-            id: The primary key ID of the user profile to reactivate.
+            user_id: The primary key ID of the user profile to reactivate.
 
         Raises:
-            NoResultFound: If no user profile is found with the given `id`.
+            NoResultFound: If no user profile is found with the given `user_id`.
         """
-        user_profile = self.db.query(UserProfile).filter(UserProfile.id == id).one()
+        user_profile = self.db.query(UserProfile).filter(UserProfile.id == user_id).one()
 
         if user_profile.active:
             return
@@ -92,11 +92,11 @@ class UserService:
         user_profile.principal.deleted_at = None
         self.db.commit()
 
-    def update_user_profile(self, id: int, **kwargs) -> UserProfile:
+    def update_user_profile(self, user_id: int, **kwargs) -> UserProfile:
         """Update a user profile with the given data.
 
         Args:
-            id: The primary key ID of the user profile to update.
+            user_id: The primary key ID of the user profile to update.
             **kwargs: The fields to update, passed as keyword arguments. Only fields
                 defined in `UserUpdateSchema` will be updated.
 
@@ -104,14 +104,14 @@ class UserService:
             The updated `UserProfile` model instance.
 
         Raises:
-            NoResultFound: If no user profile is found with the given `id`.
-            InactiveUserError: If the user profile with the given `id` is inactive.
+            NoResultFound: If no user profile is found with the given `user_id`.
+            InactiveUserError: If the user profile with the given `user_id` is inactive.
             ValidationError: If any of the fields in `kwargs` are not valid according to
                 `UserUpdateSchema`.
         """
         payload = user_schemas.UserUpdateSchema.model_validate(kwargs)
 
-        user = self.db.query(UserProfile).filter(UserProfile.id == id).one()
+        user = self.db.query(UserProfile).filter(UserProfile.id == user_id).one()
 
         if not user.active:
             raise InactiveUserError("Cannot update an inactive user profile.")
