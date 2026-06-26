@@ -5,14 +5,13 @@ import attrs
 from sqlalchemy.orm import Session
 
 from db.models.applications import Application
-from schemas.applications import ApplicationResponseSchema
 
 
 @attrs.define
 class ApplicationService:
     session: Session
     
-    def create(self, user_id: int, job_post_id: int, preference_level: str | None = None, current_location_id: int | None = None) -> ApplicationResponseSchema:
+    def create(self, user_id: int, job_post_id: int, preference_level: str | None = None, current_location_id: int | None = None) -> Application:
         application = Application(
             user_id=user_id,
             preference_level=preference_level,
@@ -23,6 +22,10 @@ class ApplicationService:
         self.session.flush()
         self.session.commit()
         
-        return ApplicationResponseSchema.model_validate(application)
-        
+        return application
     
+    def get_by_id(self, application_id: int, raise_not_found: bool = True) -> Application | None:
+        application = self.session.get(Application, application_id)
+        if not application and raise_not_found:
+            raise ValueError(f"Application with id {application_id} not found")
+        return application
