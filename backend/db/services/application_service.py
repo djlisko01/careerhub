@@ -57,20 +57,20 @@ class ApplicationService:
             raise ValueError(f"Application with id {application_id} not found")
         return application
 
-    def get_applications_for_user(self, user_id: int) -> list[Application]:
-        """Return all non-deleted applications belonging to a user.
+    def get_applications_for_user(self, user_id: int, include_deleted: bool = False) -> list[Application]:
+        """Return all applications belonging to a user, optionally including deleted ones.
 
         Args:
             user_id: ID of the user whose applications to retrieve.
+            include_deleted: If True, include soft-deleted applications.
 
         Returns:
-            List of Application instances that have not been soft-deleted.
+            List of Application instances that match the criteria.
         """
-        return (
-            self.session.query(Application)
-            .filter(Application.user_id == user_id, Application.deleted_at.is_(None))
-            .all()
-        )
+        query = self.session.query(Application).filter(Application.user_id == user_id)
+        if not include_deleted:
+            query = query.filter(Application.deleted_at.is_(None))
+        return query.all()
 
     def update_application(self, application_id: int, payload: UpdateApplicationSchema) -> Application:
         """Apply a partial update to an existing application.
