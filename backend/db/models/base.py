@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 
-from sqlalchemy import func
+from sqlalchemy import func, DateTime
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -19,12 +19,13 @@ class BaseModel(DeclarativeBase):
 
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         server_default=func.now(), onupdate=func.now(), nullable=False
     )
-    deleted_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class SoftDeleteModel(BaseModel, TimestampMixin):
@@ -35,4 +36,5 @@ class SoftDeleteModel(BaseModel, TimestampMixin):
         return self.deleted_at is not None
     
     def soft_delete(self) -> None:
+        self.updated_at = datetime.now(UTC)
         self.deleted_at = datetime.now(UTC)

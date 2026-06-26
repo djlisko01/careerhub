@@ -175,7 +175,7 @@ class TestUpdateUserProfile:
         assert user_service.db.commit.called
         assert mock_user_create.first_name == "Jane"
         assert mock_user_create.last_name == "Smith"
-        assert mock_user_create.updated_at == FIXED_DATETIME
+        assert mock_user_create.principal.updated_at == FIXED_DATETIME
 
     def test_updates_optional_urls(self, user_service, mock_user_create):
         user_service.db.query.return_value.filter.return_value.one.return_value = (
@@ -190,7 +190,7 @@ class TestUpdateUserProfile:
         assert user_service.db.commit.called
         assert mock_user_create.linkedin_url == "https://linkedin.com/in/jane"
         assert mock_user_create.github_url == "https://github.com/jane"
-        assert mock_user_create.updated_at == FIXED_DATETIME
+        assert mock_user_create.principal.updated_at == FIXED_DATETIME
 
     def test_raises_when_user_not_found(self, user_service):
         user_service.db.query.return_value.filter.return_value.one.side_effect = (
@@ -220,7 +220,7 @@ class TestDeactivateUserProfile:
 
         assert user_service.db.commit.called
         assert mock_user_create.active is False
-        assert mock_user_create.updated_at == FIXED_DATETIME
+        mock_user_create.principal.soft_delete.assert_called_once()
 
     def test_raises_when_user_not_found(self, user_service):
         user_service.db.query.return_value.filter.return_value.one.side_effect = (
@@ -230,9 +230,7 @@ class TestDeactivateUserProfile:
             user_service.deactivate_user(id=999)
 
     def test_is_idempotent_when_already_inactive(self, user_service, mock_user_create):
-        local_fixed_datetime = datetime(2023, 1, 1, tzinfo=tz.utc)
         mock_user_create.active = False
-        mock_user_create.updated_at = local_fixed_datetime
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
@@ -240,14 +238,13 @@ class TestDeactivateUserProfile:
 
         assert not user_service.db.commit.called
         assert mock_user_create.active is False
-        assert mock_user_create.updated_at == local_fixed_datetime
+        mock_user_create.principal.soft_delete.assert_not_called()
 
 
 class TestReactivateUserProfile:
 
     def test_sets_active_to_true(self, user_service, mock_user_create):
         mock_user_create.active = False
-        mock_user_create.updated_at = FIXED_DATETIME
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
@@ -255,11 +252,11 @@ class TestReactivateUserProfile:
 
         assert user_service.db.commit.called
         assert mock_user_create.active is True
-        assert mock_user_create.updated_at == FIXED_DATETIME
+        assert mock_user_create.principal.updated_at == FIXED_DATETIME
 
     def test_set_active_to_true_already_active(self, user_service, mock_user_create):
         mock_user_create.active = True
-        mock_user_create.updated_at = FIXED_DATETIME
+        mock_user_create.principal.updated_at = FIXED_DATETIME
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
@@ -267,7 +264,7 @@ class TestReactivateUserProfile:
 
         assert not user_service.db.commit.called
         assert mock_user_create.active is True
-        assert mock_user_create.updated_at == FIXED_DATETIME
+        assert mock_user_create.principal.updated_at == FIXED_DATETIME
 
     def test_raises_when_user_not_found(self, user_service):
         user_service.db.query.return_value.filter.return_value.one.side_effect = (
