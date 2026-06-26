@@ -13,6 +13,9 @@ def assert_models_equal(model1, model2, ignore_fields=None):
             if col.key not in ignore_fields
         }
 
+    assert type(model1) is type(model2), (
+        f"Model type mismatch: {type(model1).__name__} != {type(model2).__name__}"
+    )
     attrs1 = get_attrs(model1)
     attrs2 = get_attrs(model2)
     assert attrs1 == attrs2, f"Models are not equal: {attrs1} != {attrs2}"
