@@ -24,8 +24,9 @@ class ApplicationService:
         
         return application
     
-    def get_by_id(self, application_id: int, raise_not_found: bool = True) -> Application | None:
+    def get_application_by_id(self, application_id: int, raise_not_found: bool = True) -> Application | None:
         application = self.session.get(Application, application_id)
         if not application and raise_not_found:
             raise ValueError(f"Application with id {application_id} not found")
         return application
+    

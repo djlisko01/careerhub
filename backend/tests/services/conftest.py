@@ -1,9 +1,17 @@
 from datetime import datetime, timezone as tz
 from unittest.mock import MagicMock
+from tests.utils import assert_models_equal as _assert_models_equal
 
 import pytest
 
 FIXED_DATETIME = datetime(2024, 1, 1, tzinfo=tz.utc)
+
+@pytest.fixture
+def assert_models_equal():
+    def _compare(model1, model2):
+        _assert_models_equal(model1, model2, ignore_fields=['created_at', 'updated_at'])
+
+    return _compare
 
 
 @pytest.fixture(autouse=True, scope="module")
