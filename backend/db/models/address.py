@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import TimestampedModel
+from db.models.base import SoftDeleteModel
 
 if TYPE_CHECKING:
     from db.models.companies import Company
     from db.models.users import UserProfile
 
 
-class UserAddress(TimestampedModel):
+class UserAddress(SoftDeleteModel):
     __tablename__ = "user_addresses"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -29,7 +29,7 @@ class UserAddress(TimestampedModel):
     )
 
 
-class CompanyAddress(TimestampedModel):
+class CompanyAddress(SoftDeleteModel):
     __tablename__ = "company_addresses"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -43,7 +43,7 @@ class CompanyAddress(TimestampedModel):
     )
 
 
-class Address(TimestampedModel):
+class Address(SoftDeleteModel):
     __tablename__ = "addresses"
 
     id: Mapped[int] = mapped_column(primary_key=True)

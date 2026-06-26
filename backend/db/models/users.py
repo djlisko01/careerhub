@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint, func
+from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from db.models.base import BaseModel
@@ -38,12 +37,6 @@ class UserProfile(BaseModel):
 
     auth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     auth_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
 
     # ORM relationships
     applications: Mapped[list["Application"]] = relationship(

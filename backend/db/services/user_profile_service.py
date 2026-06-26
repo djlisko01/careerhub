@@ -67,10 +67,10 @@ class UserService:
         user_profile = self.db.query(UserProfile).filter(UserProfile.id == id).one()
 
         if not user_profile.active:
-            return
+            return 
 
         user_profile.active = False
-        user_profile.updated_at = datetime.now(tz=tz.utc)
+        user_profile.principal.soft_delete()
         self.db.commit()
 
     def reactivate_user(self, id: int) -> None:
@@ -88,7 +88,8 @@ class UserService:
             return
 
         user_profile.active = True
-        user_profile.updated_at = datetime.now(tz=tz.utc)
+        user_profile.principal.updated_at = datetime.now(tz=tz.utc)
+        user_profile.principal.deleted_at = None
         self.db.commit()
 
     def update_user_profile(self, id: int, **kwargs) -> user_schemas.UserReponseSchema:
@@ -108,7 +109,7 @@ class UserService:
             ValidationError: If any of the fields in `kwargs` are not valid according to
                 `UserUpdateSchema`.
         """
-        payload = user_schemas.UserUpdateSchema.model_validate(kwargs, extra="forbid")
+        payload = user_schemas.UserUpdateSchema.model_validate(kwargs)
 
         user = self.db.query(UserProfile).filter(UserProfile.id == id).one()
 
@@ -117,7 +118,7 @@ class UserService:
 
         for key, value in payload.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
-        user.updated_at = datetime.now(tz=tz.utc)
+        user.principal.updated_at = datetime.now(tz=tz.utc)
         self.db.commit()
         return user_schemas.UserReponseSchema.model_validate(user)
 

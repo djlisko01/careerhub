@@ -6,13 +6,13 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.models.base import TimestampedModel
+from db.models.base import SoftDeleteModel
 
 if TYPE_CHECKING:
     from db.models.attachments import Attachment
 
 
-class File(TimestampedModel):
+class File(SoftDeleteModel):
     __tablename__ = "files"
 
     id: Mapped[int] = mapped_column(primary_key=True)
