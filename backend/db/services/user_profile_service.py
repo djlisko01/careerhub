@@ -92,7 +92,7 @@ class UserService:
         user_profile.principal.deleted_at = None
         self.db.commit()
 
-    def update_user_profile(self, id: int, **kwargs) -> user_schemas.UserReponseSchema:
+    def update_user_profile(self, id: int, **kwargs) -> UserProfile:
         """Update a user profile with the given data.
 
         Args:
@@ -101,7 +101,7 @@ class UserService:
                 defined in `UserUpdateSchema` will be updated.
 
         Returns:
-            A `UserReponseSchema` instance representing the updated user profile.
+            The updated `UserProfile` model instance.
 
         Raises:
             NoResultFound: If no user profile is found with the given `id`.
@@ -120,11 +120,11 @@ class UserService:
             setattr(user, key, value)
         user.principal.updated_at = datetime.now(tz=tz.utc)
         self.db.commit()
-        return user_schemas.UserReponseSchema.model_validate(user)
+        return user
 
     def create_user_profile(
         self, user_data: user_schemas.UserCreateSchema
-    ) -> user_schemas.UserReponseSchema:
+    ) -> UserProfile:
         """Create a new user profile with the given data"""
         principal = Principal(principal_type=PrincipalType.HUMAN)
 
@@ -144,11 +144,11 @@ class UserService:
         self.db.flush()
         self.db.commit()
 
-        return user_schemas.UserReponseSchema.model_validate(user_profile)
+        return user_profile
 
     def get_user_profile_by_id(
         self, user_id: int, raise_err: bool = True
-    ) -> user_schemas.UserReponseSchema | None:
+    ) -> UserProfile | None:
         """Fetches a user profile by its primary key ID.
 
         Args:
@@ -156,8 +156,8 @@ class UserService:
             raise_err: If True, raises an exception if the user profile is not found.
 
         Returns:
-            user_schema: A `UserReponseSchema` instance if the user profile is found,
-                or` None` if not found and `raise_err` is `False`.
+            The `UserProfile` model instance if found, or `None` if not found and
+            `raise_err` is `False`.
 
         Raises:
             sqlalchemy.orm.exc.NoResultFound: If `raise_err` is `True` and no
@@ -165,18 +165,10 @@ class UserService:
         """
 
         if raise_err:
-            user_profile = (
-                self.db.query(UserProfile).filter(UserProfile.id == user_id).one()
-            )
-        else:
-            user_profile = (
-                self.db.query(UserProfile)
-                .filter(UserProfile.id == user_id)
-                .one_or_none()
-            )
+            return self.db.query(UserProfile).filter(UserProfile.id == user_id).one()
 
         return (
-            user_schemas.UserReponseSchema.model_validate(user_profile)
-            if user_profile
-            else None
+            self.db.query(UserProfile)
+            .filter(UserProfile.id == user_id)
+            .one_or_none()
         )

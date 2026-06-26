@@ -54,7 +54,7 @@ class TestCreateUserProfile:
 
         result = user_service.create_user_profile(user_data)
 
-        assert isinstance(result, user_schemas.UserReponseSchema)
+        assert isinstance(result, UserProfile)
         assert result.id == 1
         assert result.first_name == "John"
         assert result.last_name == "Doe"
@@ -146,14 +146,7 @@ class TestGetUserProfile:
         )
         result = user_service.get_user_profile_by_id(1)
 
-        assert result == user_schemas.UserReponseSchema(
-            id=1,
-            first_name="John",
-            last_name="Doe",
-            linkedin_url=None,
-            github_url=None,
-            active=True,
-        )
+        assert result is mock_user_create
 
     def test_returns_none_when_not_found_and_raise_err_false(self, user_service):
         user_service.db.query.return_value.filter.return_value.one_or_none.return_value = (
