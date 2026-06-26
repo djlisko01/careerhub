@@ -54,7 +54,7 @@ class TestCreateUserProfile:
 
         result = user_service.create_user_profile(user_data)
 
-        assert isinstance(result, user_schemas.UserReponseSchema)
+        assert isinstance(result, UserProfile)
         assert result.id == 1
         assert result.first_name == "John"
         assert result.last_name == "Doe"
@@ -146,14 +146,7 @@ class TestGetUserProfile:
         )
         result = user_service.get_user_profile_by_id(1)
 
-        assert result == user_schemas.UserReponseSchema(
-            id=1,
-            first_name="John",
-            last_name="Doe",
-            linkedin_url=None,
-            github_url=None,
-            active=True,
-        )
+        assert result is mock_user_create
 
     def test_returns_none_when_not_found_and_raise_err_false(self, user_service):
         user_service.db.query.return_value.filter.return_value.one_or_none.return_value = (
@@ -170,7 +163,7 @@ class TestUpdateUserProfile:
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
-        user_service.update_user_profile(id=1, first_name="Jane", last_name="Smith")
+        user_service.update_user_profile(user_id=1, first_name="Jane", last_name="Smith")
 
         assert user_service.db.commit.called
         assert mock_user_create.first_name == "Jane"
@@ -182,7 +175,7 @@ class TestUpdateUserProfile:
             mock_user_create
         )
         user_service.update_user_profile(
-            id=1,
+            user_id=1,
             linkedin_url="https://linkedin.com/in/jane",
             github_url="https://github.com/jane",
         )
@@ -197,7 +190,7 @@ class TestUpdateUserProfile:
             Exception("NoResultFound")
         )
         with pytest.raises(Exception, match="NoResultFound"):
-            user_service.update_user_profile(id=999, first_name="Jane")
+            user_service.update_user_profile(user_id=999, first_name="Jane")
 
     def test_raises_when_user_inactive(self, user_service, mock_user_create):
         mock_user_create.active = False
@@ -207,7 +200,7 @@ class TestUpdateUserProfile:
         with pytest.raises(
             InactiveUserError, match="Cannot update an inactive user profile."
         ):
-            user_service.update_user_profile(id=1, first_name="Jane")
+            user_service.update_user_profile(user_id=1, first_name="Jane")
 
 
 class TestDeactivateUserProfile:
@@ -216,7 +209,7 @@ class TestDeactivateUserProfile:
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
-        user_service.deactivate_user(id=1)
+        user_service.deactivate_user(user_id=1)
 
         assert user_service.db.commit.called
         assert mock_user_create.active is False
@@ -227,14 +220,14 @@ class TestDeactivateUserProfile:
             Exception("NoResultFound")
         )
         with pytest.raises(Exception, match="NoResultFound"):
-            user_service.deactivate_user(id=999)
+            user_service.deactivate_user(user_id=999)
 
     def test_is_idempotent_when_already_inactive(self, user_service, mock_user_create):
         mock_user_create.active = False
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
-        user_service.deactivate_user(id=1)
+        user_service.deactivate_user(user_id=1)
 
         assert not user_service.db.commit.called
         assert mock_user_create.active is False
@@ -248,7 +241,7 @@ class TestReactivateUserProfile:
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
-        user_service.reactivate_user(id=1)
+        user_service.reactivate_user(user_id=1)
 
         assert user_service.db.commit.called
         assert mock_user_create.active is True
@@ -260,7 +253,7 @@ class TestReactivateUserProfile:
         user_service.db.query.return_value.filter.return_value.one.return_value = (
             mock_user_create
         )
-        user_service.reactivate_user(id=1)
+        user_service.reactivate_user(user_id=1)
 
         assert not user_service.db.commit.called
         assert mock_user_create.active is True
@@ -271,4 +264,4 @@ class TestReactivateUserProfile:
             Exception("NoResultFound")
         )
         with pytest.raises(Exception, match="NoResultFound"):
-            user_service.reactivate_user(id=999)
+            user_service.reactivate_user(user_id=999)
