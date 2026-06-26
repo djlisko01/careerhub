@@ -47,9 +47,9 @@ class ApplicationService:
         self.session.commit()
         return application
 
-    def soft_delete(self, application_id: int) -> Application:
+    def delete(self, application_id: int) -> Application:
         application = self.get_application_by_id(application_id)
-        application.delete()
+        application.soft_delete()
         self.session.commit()
         return application
     

@@ -34,5 +34,5 @@ class SoftDeleteModel(BaseModel, TimestampMixin):
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
     
-    def delete(self) -> None:
+    def soft_delete(self) -> None:
         self.deleted_at = datetime.now(UTC)
