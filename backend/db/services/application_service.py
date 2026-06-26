@@ -54,7 +54,7 @@ class ApplicationService:
         """
         application = self.session.get(Application, application_id)
         
-        if application.deleted_at is not None:
+        if application is not None and application.deleted_at is not None:
             application = None
         
         if not application and raise_not_found:

@@ -151,13 +151,30 @@ class TestGetApplicationById:
         with pytest.raises(ValueError, match="not found"):
             application_service.get_application_by_id(999)
 
+    def test_raises_when_deleted(self, application_service, mock_application):
+        mock_application.deleted_at = FIXED_DATETIME
+        application_service.session.get.return_value = mock_application
+
+        with pytest.raises(ValueError, match="not found"):
+            application_service.get_application_by_id(1)
+
+    def test_returns_none_when_deleted_and_raise_err_false(
+        self, application_service, mock_application
+    ):
+        mock_application.deleted_at = FIXED_DATETIME
+        application_service.session.get.return_value = mock_application
+
+        result = application_service.get_application_by_id(1, raise_not_found=False)
+
+        assert result is None
+
 
 class TestGetApplicationsForUser:
 
     def test_returns_applications_for_user(
         self, application_service, mock_application, assert_models_equal
     ):
-        application_service.session.query.return_value.filter.return_value.all.return_value = [
+        application_service.session.query.return_value.filter.return_value.filter.return_value.all.return_value = [
             mock_application
         ]
 
@@ -180,7 +197,7 @@ class TestGetApplicationsForUser:
         
 
     def test_returns_empty_list_when_no_applications(self, application_service):
-        application_service.session.query.return_value.filter.return_value.all.return_value = (
+        application_service.session.query.return_value.filter.return_value.filter.return_value.all.return_value = (
             []
         )
 
