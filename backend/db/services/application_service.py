@@ -53,6 +53,10 @@ class ApplicationService:
             ValueError: If no application exists with the given ID and raise_not_found is True.
         """
         application = self.session.get(Application, application_id)
+        
+        if application.deleted_at is not None:
+            application = None
+        
         if not application and raise_not_found:
             raise ValueError(f"Application with id {application_id} not found")
         return application
