@@ -23,4 +23,4 @@ docker_stop_db:
 docker_clean_db:
 	@echo "Cleaning up database container..."
 	docker-compose down -v --remove-orphans
-	@echo "Database container cleaned up successfully."
+	
