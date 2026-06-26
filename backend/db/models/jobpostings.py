@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey
 
-from db.models.base import TimestampedModel
+from db.models.base import SoftDeleteModel
 
 if TYPE_CHECKING:
     from db.models.companies import Company
 
 
-class JobPosting(TimestampedModel):
+class JobPosting(SoftDeleteModel):
     __tablename__ = "job_postings"
 
     id: Mapped[int] = mapped_column(primary_key=True)

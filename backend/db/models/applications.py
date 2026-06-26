@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey, func, Enum as SQLAlchemyEnum
 
-from db.models.base import BaseModel, TimestampedModel
+from db.models.base import SoftDeleteModel
 
 if TYPE_CHECKING:
     from db.models.address import Address
@@ -31,7 +31,7 @@ class PreferenceLevel(enum.Enum):
     HIGH = "high"
 
 
-class Application(BaseModel):
+class Application(SoftDeleteModel):
     __tablename__ = "applications"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -54,13 +54,7 @@ class Application(BaseModel):
     )
 
     # Dates
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
-    )
     applied_at: Mapped[datetime] = mapped_column(nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(), nullable=False
-    )
     closed_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Relationships
@@ -80,7 +74,7 @@ class Application(BaseModel):
     )
 
 
-class Reminders(TimestampedModel):
+class Reminders(SoftDeleteModel):
     __tablename__ = "reminders"
 
     id: Mapped[int] = mapped_column(primary_key=True)

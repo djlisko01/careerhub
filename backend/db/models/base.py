@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import func
 from sqlalchemy import MetaData
@@ -27,9 +27,12 @@ class TimestampMixin:
     deleted_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
 
-class TimestampedModel(BaseModel, TimestampMixin):
+class SoftDeleteModel(BaseModel, TimestampMixin):
     __abstract__ = True
 
     @property
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
+    
+    def delete(self) -> None:
+        self.deleted_at = datetime.now(UTC)

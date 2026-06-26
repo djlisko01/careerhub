@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, Text, String
 
-from db.models.base import TimestampedModel
+from db.models.base import SoftDeleteModel
 
 if TYPE_CHECKING:
     from db.models.applications import Application
 
 
-class Note(TimestampedModel):
+class Note(SoftDeleteModel):
     __tablename__ = "notes"
 
     id: Mapped[int] = mapped_column(primary_key=True)

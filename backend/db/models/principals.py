@@ -5,7 +5,7 @@ import enum
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.models.base import TimestampedModel
+from db.models.base import SoftDeleteModel
 
 
 class PrincipalType(enum.Enum):
@@ -13,7 +13,7 @@ class PrincipalType(enum.Enum):
     AI_AGENT = "AI_AGENT"
 
 
-class Principal(TimestampedModel):
+class Principal(SoftDeleteModel):
     __tablename__ = "principals"
 
     id: Mapped[int] = mapped_column(primary_key=True)
