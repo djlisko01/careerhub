@@ -187,3 +187,27 @@ class TestGetApplicationsForUser:
         result = application_service.get_applications_for_user(999)
 
         assert result == []
+
+
+class TestSoftDeleteApplication:
+
+    def test_sets_deleted_at(self, application_service, mock_application):
+        application_service.session.get.return_value = mock_application
+
+        result = application_service.soft_delete(1)
+
+        assert result.deleted_at is not None
+        assert result.is_deleted is True
+
+    def test_commits_after_delete(self, application_service, mock_application):
+        application_service.session.get.return_value = mock_application
+
+        application_service.soft_delete(1)
+
+        application_service.session.commit.assert_called_once()
+
+    def test_raises_when_not_found(self, application_service):
+        application_service.session.get.return_value = None
+
+        with pytest.raises(ValueError, match="not found"):
+            application_service.soft_delete(999)
