@@ -30,3 +30,6 @@ class ApplicationService:
             raise ValueError(f"Application with id {application_id} not found")
         return application
     
+    def get_applications_for_user(self, user_id: int) -> list[Application]:
+        return self.session.query(Application).filter(Application.user_id == user_id).all()
+    

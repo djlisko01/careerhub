@@ -155,19 +155,18 @@ class TestGetApplicationById:
 class TestGetApplicationsForUser:
 
     def test_returns_applications_for_user(
-        self, application_service, mock_application
+        self, application_service, mock_application, assert_models_equal
     ):
         application_service.session.query.return_value.filter.return_value.all.return_value = [
             mock_application
         ]
 
         result = application_service.get_applications_for_user(10)
-
-        assert result == [
-            application_schemas.ApplicationResponseSchema(
+        expected = [
+            Application(
                 id=1,
                 user_id=10,
-                status="draft",
+                status=ApplicationStatus.DRAFT,
                 preference_level=None,
                 job_post_id=20,
                 current_location_id=None,
@@ -176,6 +175,9 @@ class TestGetApplicationsForUser:
                 closed_at=None,
             )
         ]
+        for res, exp in zip(result, expected):
+            assert_models_equal(res, exp)
+        
 
     def test_returns_empty_list_when_no_applications(self, application_service):
         application_service.session.query.return_value.filter.return_value.all.return_value = (
