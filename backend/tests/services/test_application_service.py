@@ -192,7 +192,7 @@ class TestGetApplicationsForUser:
                 closed_at=None,
             )
         ]
-        for res, exp in zip(result, expected):
+        for res, exp in zip(result, expected, strict=True):
             assert_models_equal(res, exp)
         
 
