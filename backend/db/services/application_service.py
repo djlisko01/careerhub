@@ -5,6 +5,8 @@ import attrs
 from sqlalchemy.orm import Session
 
 from db.models.applications import Application
+from schemas.applications import UpdateApplicationSchema
+
 
 
 @attrs.define
@@ -32,4 +34,12 @@ class ApplicationService:
     
     def get_applications_for_user(self, user_id: int) -> list[Application]:
         return self.session.query(Application).filter(Application.user_id == user_id).all()
+    
+    def update_application(self, application_id: int, payload: UpdateApplicationSchema) -> Application:
+        application = self.get_application_by_id(application_id)
+        
+        for field, value in payload.model_dump(exclude_unset=True).items():
+            setattr(application, field, value)
+        self.session.commit()
+        return application
     

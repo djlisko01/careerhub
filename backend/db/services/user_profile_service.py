@@ -108,7 +108,7 @@ class UserService:
             ValidationError: If any of the fields in `kwargs` are not valid according to
                 `UserUpdateSchema`.
         """
-        payload = user_schemas.UserUpdateSchema.model_validate(kwargs, extra="forbid")
+        payload = user_schemas.UserUpdateSchema.model_validate(kwargs)
 
         user = self.db.query(UserProfile).filter(UserProfile.id == id).one()
 
