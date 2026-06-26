@@ -89,6 +89,7 @@ class UserService:
 
         user_profile.active = True
         user_profile.principal.updated_at = datetime.now(tz=tz.utc)
+        user_profile.principal.deleted_at = None
         self.db.commit()
 
     def update_user_profile(self, id: int, **kwargs) -> user_schemas.UserReponseSchema:

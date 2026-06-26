@@ -16,11 +16,15 @@ docker_start_db:
 	@echo "Starting database container..."
 	docker-compose up -d db
 
-docker_stop_db:
-	@echo "Stopping database container..."
+docker_down_db:
+	@echo "Tearing down database container..."
 	docker-compose down
 
 docker_clean_db:
 	@echo "Cleaning up database container..."
 	docker-compose down -v --remove-orphans
-	
+	@echo "Database container cleaned up."
+
+db_migrate:
+	@echo "Migrating database..."
+	uv run --directory ${BACKEND_DIR} alembic upgrade head

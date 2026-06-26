@@ -1,8 +1,8 @@
-"""initial
+"""init
 
-Revision ID: b20465c6848c
+Revision ID: 859c0cc06079
 Revises: 
-Create Date: 2026-06-26 00:26:46.554282
+Create Date: 2026-06-26 15:55:46.211556
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'b20465c6848c'
+revision: str = '859c0cc06079'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,9 +27,9 @@ def upgrade() -> None:
     sa.Column('region', sa.String(length=100), nullable=True),
     sa.Column('country_code', sa.String(length=2), nullable=True),
     sa.Column('label', sa.String(length=255), nullable=True),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_addresses'))
     )
     op.create_table('companies',
@@ -43,18 +43,18 @@ def upgrade() -> None:
     op.create_table('principals',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('principal_type', sa.Enum('HUMAN', 'AI_AGENT', name='principaltype'), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_principals'))
     )
     op.create_table('company_addresses',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('address_id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['address_id'], ['addresses.id'], name=op.f('fk_company_addresses_address_id_addresses')),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], name=op.f('fk_company_addresses_company_id_companies')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_company_addresses'))
@@ -65,9 +65,9 @@ def upgrade() -> None:
     sa.Column('filename', sa.String(), nullable=False),
     sa.Column('file_path', sa.String(), nullable=False),
     sa.Column('metadata', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['creator_id'], ['principals.id'], name=op.f('fk_files_creator_id_principals')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_files')),
     sa.UniqueConstraint('file_path', name=op.f('uq_files_file_path'))
@@ -79,9 +79,9 @@ def upgrade() -> None:
     sa.Column('location', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('post_url', sa.String(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], name=op.f('fk_job_postings_company_id_companies')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_job_postings'))
     )
@@ -96,7 +96,6 @@ def upgrade() -> None:
     sa.Column('principal_id', sa.Integer(), nullable=False),
     sa.Column('auth_provider', sa.String(length=50), nullable=True),
     sa.Column('auth_id', sa.String(length=255), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['current_address_id'], ['addresses.id'], name='fk_user_current_address', use_alter=True),
     sa.ForeignKeyConstraint(['principal_id'], ['principals.id'], name=op.f('fk_user_profiles_principal_id_principals')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_user_profiles')),
@@ -112,9 +111,9 @@ def upgrade() -> None:
     sa.Column('current_location_id', sa.Integer(), nullable=True),
     sa.Column('applied_at', sa.DateTime(), nullable=True),
     sa.Column('closed_at', sa.DateTime(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['current_location_id'], ['addresses.id'], name=op.f('fk_applications_current_location_id_addresses')),
     sa.ForeignKeyConstraint(['job_post_id'], ['job_postings.id'], name=op.f('fk_applications_job_post_id_job_postings')),
     sa.ForeignKeyConstraint(['user_id'], ['user_profiles.id'], name=op.f('fk_applications_user_id_user_profiles')),
@@ -125,9 +124,9 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('address_id', sa.Integer(), nullable=False),
     sa.Column('is_primary', sa.Boolean(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['address_id'], ['addresses.id'], name=op.f('fk_user_addresses_address_id_addresses')),
     sa.ForeignKeyConstraint(['user_id'], ['user_profiles.id'], name=op.f('fk_user_addresses_user_id_user_profiles')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_user_addresses'))
@@ -137,9 +136,9 @@ def upgrade() -> None:
     sa.Column('file_id', sa.Integer(), nullable=False),
     sa.Column('application_id', sa.Integer(), nullable=False),
     sa.Column('label', sa.String(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['application_id'], ['applications.id'], name=op.f('fk_attachments_application_id_applications')),
     sa.ForeignKeyConstraint(['file_id'], ['files.id'], name=op.f('fk_attachments_file_id_files')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_attachments'))
@@ -149,9 +148,9 @@ def upgrade() -> None:
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('application_id', sa.Integer(), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['application_id'], ['applications.id'], name=op.f('fk_notes_application_id_applications')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_notes'))
     )
@@ -161,9 +160,9 @@ def upgrade() -> None:
     sa.Column('reminder_date', sa.DateTime(), nullable=False),
     sa.Column('message', sa.String(), nullable=True),
     sa.Column('is_completed', sa.Boolean(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['application_id'], ['applications.id'], name=op.f('fk_reminders_application_id_applications')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_reminders'))
     )
