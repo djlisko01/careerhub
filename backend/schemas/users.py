@@ -6,6 +6,8 @@ class UserCreateSchema(BaseModel):
     last_name: str
     linkedin_url: str | None = None
     github_url: str | None = None
+    
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdateSchema(BaseModel):
@@ -18,11 +20,11 @@ class UserUpdateSchema(BaseModel):
 
 
 class UserReponseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
     id: int
     first_name: str
     last_name: str
     linkedin_url: str | None = None
     github_url: str | None = None
     active: bool = True
+    
+    model_config = ConfigDict(from_attributes=True)
