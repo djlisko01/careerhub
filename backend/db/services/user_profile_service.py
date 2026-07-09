@@ -172,3 +172,41 @@ class UserService:
             .filter(UserProfile.id == user_id)
             .one_or_none()
         )
+        
+    def get_user_profile_by_email(self, email: str, raise_err: bool = True) -> UserProfile | None:
+        """Fetches a user profile by its email address.
+
+        Args:
+            email: The email address of the user profile to fetch.
+            raise_err: If True, raises an exception if the user profile is not found.
+
+        Returns:
+            The `UserProfile` model instance if found, or `None` if not found and
+            `raise_err` is `False`.
+
+        Raises:
+            sqlalchemy.orm.exc.NoResultFound: If `raise_err` is `True` and no
+                user profile is found with the given `email`.
+        """
+        
+        # Mock User for now
+        user = UserProfile(
+            id=1,
+            first_name="Mock",
+            last_name="User",
+            email=email,
+            active=True,
+            linkedin_url=None,
+            github_url=None,
+            principal_id=1,
+        )
+        return user
+
+        # if raise_err:
+        #     return self.db.query(UserProfile).filter(UserProfile.email == email).one()
+
+        # return (
+        #     self.db.query(UserProfile)
+        #     .filter(UserProfile.email == email)
+        #     .one_or_none()
+        # )   

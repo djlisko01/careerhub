@@ -23,8 +23,9 @@ class UserReponseSchema(BaseModel):
     id: int
     first_name: str
     last_name: str
+    email: str | None = None
     linkedin_url: str | None = None
     github_url: str | None = None
     active: bool = True
     
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
