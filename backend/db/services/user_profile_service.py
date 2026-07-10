@@ -25,6 +25,7 @@ from db.models import UserProfile, Principal
 from db.models.principals import PrincipalType
 
 import schemas.users as user_schemas
+from security import authentication as authn
 
 
 class InactiveUserError(Exception):
@@ -123,7 +124,7 @@ class UserService:
         return user
 
     def create_user_profile(
-        self, user_data: user_schemas.UserCreateSchema
+        self, user_data: user_schemas.LocalUserCreateSchema
     ) -> UserProfile:
         """Create a new user profile with the given data"""
         principal = Principal(principal_type=PrincipalType.HUMAN)
@@ -136,6 +137,8 @@ class UserService:
         user_profile = UserProfile(
             first_name=user_data.first_name,
             last_name=user_data.last_name,
+            email=user_data.email,
+            password=authn.hash_password(user_data.password),
             linkedin_url=user_data.linkedin_url,
             github_url=user_data.github_url,
             principal_id=principal.id,
@@ -188,25 +191,11 @@ class UserService:
             sqlalchemy.orm.exc.NoResultFound: If `raise_err` is `True` and no
                 user profile is found with the given `email`.
         """
-        
-        # Mock User for now
-        user = UserProfile(
-            id=1,
-            first_name="Mock",
-            last_name="User",
-            email=email,
-            active=True,
-            linkedin_url=None,
-            github_url=None,
-            principal_id=1,
+        if raise_err:
+            return self.db.query(UserProfile).filter(UserProfile.email == email).one()
+
+        return (
+            self.db.query(UserProfile)
+            .filter(UserProfile.email == email)
+            .one_or_none()
         )
-        return user
-
-        # if raise_err:
-        #     return self.db.query(UserProfile).filter(UserProfile.email == email).one()
-
-        # return (
-        #     self.db.query(UserProfile)
-        #     .filter(UserProfile.email == email)
-        #     .one_or_none()
-        # )   
