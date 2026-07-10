@@ -38,7 +38,7 @@ def get_current_user(access_token: TokenDependency, user_service: UserService = 
         raise AuthException
     
     user = user_service.get_user_profile_by_email(username, raise_err=False)
-    if user is None:
+    if user is None or not user.active:
         raise AuthException
     
     return user
