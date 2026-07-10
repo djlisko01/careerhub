@@ -32,7 +32,9 @@ def get_current_user(access_token: TokenDependency, user_service: UserService = 
     try:
         payload = decode_access_token(access_token)
     except (ExpiredSignatureError, InvalidTokenError, InvalidSignatureError):
-        raise AuthException
+        # Don't leak JWT decode internals in the traceback - just raise our own
+        # auth error and hide the original exception.
+        raise AuthException from None
     
     username = payload.get("sub")
     if username is None:
