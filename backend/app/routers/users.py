@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi import status
 
 from app.dependencies import get_current_user, get_user_service
 
@@ -10,6 +11,11 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("/")
 def create_user(new_user: LocalUserCreateSchema, service: UserService = Depends(get_user_service)) -> UserResponseSchema:
+    
+    user_exist = service.get_user_profile_by_email(new_user.email, raise_err=False)
+    if user_exist:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
+    
     user = service.create_user_profile(new_user)
     return UserResponseSchema.model_validate(user)
 

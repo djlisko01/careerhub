@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.exceptions import HTTPException
+from fastapi import status
 
 from jwt import ExpiredSignatureError, InvalidTokenError, InvalidSignatureError
 
@@ -15,7 +16,7 @@ from db.connectors import sqlalchemy_conn
 
 from security.authentication import decode_access_token
 
-AuthException = HTTPException(status_code=401, detail="Could not validate credentials")
+AuthException = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
 # Singleton to use accross the app
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
