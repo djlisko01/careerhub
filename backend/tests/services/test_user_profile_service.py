@@ -42,9 +42,11 @@ def make_flush_handler(added_objects, principal_id=99, profile_id=1):
 class TestCreateUserProfile:
 
     def test_happy_path_returns_profile(self, user_service):
-        user_data = user_schemas.UserCreateSchema(
+        user_data = user_schemas.LocalUserCreateSchema(
             first_name="John",
             last_name="Doe",
+            email="john.doe@example.com",
+            password="hunter2",
             linkedin_url="https://linkedin.com/in/johndoe",
             github_url="https://github.com/johndoe",
         )
@@ -58,12 +60,16 @@ class TestCreateUserProfile:
         assert result.id == 1
         assert result.first_name == "John"
         assert result.last_name == "Doe"
+        assert result.email == "john.doe@example.com"
+        assert result.password != "hunter2"
         assert result.linkedin_url == "https://linkedin.com/in/johndoe"
         assert result.github_url == "https://github.com/johndoe"
         assert result.active is True
 
     def test_creates_human_principal_before_profile(self, user_service):
-        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+        user_data = user_schemas.LocalUserCreateSchema(
+            first_name="Jane", last_name="Smith", email="jane@example.com", password="hunter2"
+        )
 
         added_objects = []
         user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
@@ -82,7 +88,9 @@ class TestCreateUserProfile:
         assert principal.principal_type == PrincipalType.HUMAN
 
     def test_links_new_principal_id_to_profile(self, user_service):
-        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+        user_data = user_schemas.LocalUserCreateSchema(
+            first_name="Jane", last_name="Smith", email="jane@example.com", password="hunter2"
+        )
 
         added_objects = []
         user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
@@ -98,7 +106,9 @@ class TestCreateUserProfile:
         assert user_profile.principal_id == 42
 
     def test_active_defaults_to_true(self, user_service):
-        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+        user_data = user_schemas.LocalUserCreateSchema(
+            first_name="Jane", last_name="Smith", email="jane@example.com", password="hunter2"
+        )
 
         added_objects = []
         user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
@@ -109,7 +119,9 @@ class TestCreateUserProfile:
         assert result.active is True
 
     def test_optional_fields_are_none_when_not_provided(self, user_service):
-        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+        user_data = user_schemas.LocalUserCreateSchema(
+            first_name="Jane", last_name="Smith", email="jane@example.com", password="hunter2"
+        )
 
         added_objects = []
         user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
@@ -121,7 +133,9 @@ class TestCreateUserProfile:
         assert result.github_url is None
 
     def test_raises_on_duplicate_auth(self, user_service):
-        user_data = user_schemas.UserCreateSchema(first_name="Jane", last_name="Smith")
+        user_data = user_schemas.LocalUserCreateSchema(
+            first_name="Jane", last_name="Smith", email="jane@example.com", password="hunter2"
+        )
 
         added_objects = []
         user_service.db.add.side_effect = lambda obj: added_objects.append(obj)
