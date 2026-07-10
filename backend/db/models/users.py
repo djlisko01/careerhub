@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from db.models.base import BaseModel
@@ -18,6 +18,11 @@ class UserProfile(BaseModel):
     __tablename__ = "user_profiles"
     __table_args__ = (
         UniqueConstraint("auth_provider", "auth_id", name="uq_user_auth"),
+        CheckConstraint(
+            "(email IS NOT NULL AND password IS NOT NULL) "
+            "OR (auth_provider IS NOT NULL AND auth_id IS NOT NULL)",
+            name="ck_user_profiles_has_auth_method",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
