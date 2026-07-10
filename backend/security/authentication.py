@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from pwdlib import PasswordHash
 
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7" # TODO: Remove this in set from ENV variable
-TOKEN_ALGO = "HS256"
+from config import settings
+
 ACCESS_TOKEN_EXPIRES_IN = timedelta(minutes=15)
 
 password_hasher = PasswordHash.recommended()
@@ -55,7 +55,7 @@ def create_access_token(data: dict, expires_in: timedelta = ACCESS_TOKEN_EXPIRES
     to_encode = data.copy()
     to_encode.update({"exp": expiration})
     
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=TOKEN_ALGO)
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.TOKEN_ALGO)
 
 def decode_access_token(token: str) -> dict:
     """Decode the provided access token.
@@ -66,4 +66,4 @@ def decode_access_token(token: str) -> dict:
     Returns:
         The decoded token data as a dictionary.
     """
-    return jwt.decode(token, SECRET_KEY, algorithms=[TOKEN_ALGO])
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.TOKEN_ALGO])

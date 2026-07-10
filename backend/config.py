@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     # App
     log_level: str = "INFO"
 
+    # Auth
+    SECRET_KEY: str
+    TOKEN_ALGO: str = "HS256"
+
     @property
     def postgres_url(self) -> str:
         url = PostgresDsn.build(
@@ -31,4 +35,6 @@ class Settings(BaseSettings):
         return str(url)
 
 
-settings = Settings()
+# Pyright doesn't know BaseSettings fills required fields from the env/.env file,
+# so it flags this call as missing arguments: https://github.com/pydantic/pydantic-settings/issues/201
+settings = Settings()  # type: ignore[call-arg]
