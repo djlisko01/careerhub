@@ -10,7 +10,7 @@ from config import settings
 # If created per-request, you'd be spinning up a new pool every time (wasteful).
 # pool_size = how many connections stay open; max_overflow = extra connections
 # allowed under load; pool_timeout = seconds to wait for a connection before erroring.
-Engine = create_engine(settings.postgres_url)
+Engine = create_engine(settings.postgres_url, pool_pre_ping=True)
 
 # Session factory: a template for creating sessions.
 # autocommit=False: you control when commits happen (explicit db.commit()).
