@@ -25,6 +25,7 @@ from db.models import UserProfile, Principal
 from db.models.principals import PrincipalType
 
 import schemas.users as user_schemas
+from security import authentication as authn
 
 
 class InactiveUserError(Exception):
@@ -48,6 +49,7 @@ class UserService:
     Public Methods:
         create_user_profile: Create a new user profile and its associated principal.
         get_user_profile_by_id: Fetch a user profile by its primary key ID.
+        get_user_profile_by_email: Fetch a user profile by its email address.
         update_user_profile: Update fields on an existing active user profile.
         deactivate_user: Mark a user profile as inactive.
         reactivate_user: Restore a previously deactivated user profile to active.
@@ -123,9 +125,17 @@ class UserService:
         return user
 
     def create_user_profile(
-        self, user_data: user_schemas.UserCreateSchema
+        self, user_data: user_schemas.LocalUserCreateSchema
     ) -> UserProfile:
-        """Create a new user profile with the given data"""
+        """Create a new user profile with local (email/password) credentials.
+
+        Args:
+            user_data: The profile fields plus a plaintext email and password;
+                the password is hashed before being persisted.
+
+        Returns:
+            The newly created `UserProfile` instance.
+        """
         principal = Principal(principal_type=PrincipalType.HUMAN)
 
         # Add principal to generate an fk ID for the user profile
@@ -136,6 +146,8 @@ class UserService:
         user_profile = UserProfile(
             first_name=user_data.first_name,
             last_name=user_data.last_name,
+            email=user_data.email,
+            password=authn.hash_password(user_data.password),
             linkedin_url=user_data.linkedin_url,
             github_url=user_data.github_url,
             principal_id=principal.id,
@@ -170,5 +182,29 @@ class UserService:
         return (
             self.db.query(UserProfile)
             .filter(UserProfile.id == user_id)
+            .one_or_none()
+        )
+        
+    def get_user_profile_by_email(self, email: str, raise_err: bool = True) -> UserProfile | None:
+        """Fetches a user profile by its email address.
+
+        Args:
+            email: The email address of the user profile to fetch.
+            raise_err: If True, raises an exception if the user profile is not found.
+
+        Returns:
+            The `UserProfile` model instance if found, or `None` if not found and
+            `raise_err` is `False`.
+
+        Raises:
+            sqlalchemy.orm.exc.NoResultFound: If `raise_err` is `True` and no
+                user profile is found with the given `email`.
+        """
+        if raise_err:
+            return self.db.query(UserProfile).filter(UserProfile.email == email).one()
+
+        return (
+            self.db.query(UserProfile)
+            .filter(UserProfile.email == email)
             .one_or_none()
         )

@@ -7,6 +7,13 @@ class UserCreateSchema(BaseModel):
     linkedin_url: str | None = None
     github_url: str | None = None
 
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LocalUserCreateSchema(UserCreateSchema):
+    email: str
+    password: str
+
 
 class UserUpdateSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -17,12 +24,13 @@ class UserUpdateSchema(BaseModel):
     github_url: str | None = None
 
 
-class UserReponseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class UserResponseSchema(BaseModel):
     id: int
     first_name: str
     last_name: str
+    email: str | None = None
     linkedin_url: str | None = None
     github_url: str | None = None
     active: bool = True
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")

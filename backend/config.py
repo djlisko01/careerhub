@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import PostgresDsn
 
+ENV_FILE = Path(__file__).parent.parent / ".env"
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file="../.env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8")
 
     # Database
     POSTGRES_USER: str
@@ -14,6 +17,10 @@ class Settings(BaseSettings):
 
     # App
     log_level: str = "INFO"
+
+    # Auth
+    SECRET_KEY: str
+    TOKEN_ALGO: str = "HS256"
 
     @property
     def postgres_url(self) -> str:
@@ -28,4 +35,6 @@ class Settings(BaseSettings):
         return str(url)
 
 
-settings = Settings()
+# Pyright doesn't know BaseSettings fills required fields from the env/.env file,
+# so it flags this call as missing arguments: https://github.com/pydantic/pydantic-settings/issues/201
+settings = Settings()  # type: ignore[call-arg]

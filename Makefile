@@ -1,5 +1,7 @@
 BACKEND_DIR := ./backend
 
+############################ Backend Commands #############################
+
 test_backend:
 	@echo "Running backend tests..."
 	uv run --directory ${BACKEND_DIR} pytest
@@ -12,6 +14,12 @@ uv_sync_dev:
 	@echo "Synchronizing backend dependencies for development..."
 	uv run --directory ${BACKEND_DIR} uv sync --dev
 
+######################### API Commands ##############################
+run_api_dev:
+	@echo "Running FastAPI development server..."
+	uv run --directory ${BACKEND_DIR}/app fastapi dev
+
+########################### Docker  DB SERVICES #############################
 docker_start_db:
 	@echo "Starting database container..."
 	docker-compose up -d db

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from db.models.base import BaseModel
@@ -18,14 +18,30 @@ class UserProfile(BaseModel):
     __tablename__ = "user_profiles"
     __table_args__ = (
         UniqueConstraint("auth_provider", "auth_id", name="uq_user_auth"),
+        CheckConstraint(
+            "(email IS NOT NULL AND password IS NOT NULL) "
+            "OR (auth_provider IS NOT NULL AND auth_id IS NOT NULL)",
+            name="ck_user_profiles_has_auth_method",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    linkedin_url: Mapped[str] = mapped_column(String(255), nullable=True)
-    github_url: Mapped[str] = mapped_column(String(255), nullable=True)
     active: Mapped[bool] = mapped_column(default=True, nullable=False)
+    
+    # Local login credentials
+    email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
+    password: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    
+    # Authentication via external providers (e.g., OAuth)
+    auth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    auth_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    
+    # URLs for social profiles
+    linkedin_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    github_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    
     current_address_id: Mapped[int | None] = mapped_column(
         ForeignKey("addresses.id", use_alter=True, name="fk_user_current_address"),
         nullable=True,
@@ -35,8 +51,6 @@ class UserProfile(BaseModel):
         ForeignKey("principals.id"), nullable=False, unique=True
     )
 
-    auth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    auth_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # ORM relationships
     applications: Mapped[list["Application"]] = relationship(
