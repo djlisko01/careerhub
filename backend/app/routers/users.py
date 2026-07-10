@@ -9,7 +9,7 @@ from schemas.users import LocalUserCreateSchema, UserResponseSchema
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(new_user: LocalUserCreateSchema, service: UserService = Depends(get_user_service)) -> UserResponseSchema:
     
     user_exist = service.get_user_profile_by_email(new_user.email, raise_err=False)
