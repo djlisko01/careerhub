@@ -11,7 +11,7 @@ from security import authentication as authn
 from schemas.users import UserResponseSchema
 
 
-router = APIRouter(prefix="/token", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 def authenticate_user(email: str, password: str, user_service: UserService) -> UserResponseSchema:
@@ -28,7 +28,7 @@ def authenticate_user(email: str, password: str, user_service: UserService) -> U
     
     
 
-@router.post("/")
+@router.post("/token")
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: UserService = Depends(get_user_service),
