@@ -49,6 +49,7 @@ class UserService:
     Public Methods:
         create_user_profile: Create a new user profile and its associated principal.
         get_user_profile_by_id: Fetch a user profile by its primary key ID.
+        get_user_profile_by_email: Fetch a user profile by its email address.
         update_user_profile: Update fields on an existing active user profile.
         deactivate_user: Mark a user profile as inactive.
         reactivate_user: Restore a previously deactivated user profile to active.
@@ -126,7 +127,15 @@ class UserService:
     def create_user_profile(
         self, user_data: user_schemas.LocalUserCreateSchema
     ) -> UserProfile:
-        """Create a new user profile with the given data"""
+        """Create a new user profile with local (email/password) credentials.
+
+        Args:
+            user_data: The profile fields plus a plaintext email and password;
+                the password is hashed before being persisted.
+
+        Returns:
+            The newly created `UserProfile` instance.
+        """
         principal = Principal(principal_type=PrincipalType.HUMAN)
 
         # Add principal to generate an fk ID for the user profile
