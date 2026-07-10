@@ -2,16 +2,16 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### Requirements
+
+- Node.js 20.9 or later (required by Next.js 16)
+- [pnpm](https://pnpm.io) — this repo uses a pnpm workspace and lockfile, so pnpm is the supported package manager
+
+### Install and run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
