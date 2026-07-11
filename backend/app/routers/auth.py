@@ -6,12 +6,12 @@ from fastapi.exceptions import HTTPException
 
 from db.services.user_profile_service import UserService
 
-from app.dependencies import get_user_service
+from app.dependencies import get_current_user, get_user_service
 from security import authentication as authn
 from schemas.users import UserResponseSchema
 
 
-router = APIRouter(tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def authenticate_user(email: str, password: str, user_service: UserService) -> UserResponseSchema:
@@ -36,4 +36,9 @@ async def login(
     user = authenticate_user(form_data.username, form_data.password, user_service)
     access_token = authn.create_access_token({"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me")
+def read_current_user(current_user: UserResponseSchema = Depends(get_current_user)) -> UserResponseSchema:
+    return current_user
+
     

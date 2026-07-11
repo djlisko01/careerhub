@@ -19,7 +19,7 @@ from security.authentication import decode_access_token
 AuthException = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
 # Singleton to use accross the app
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 TokenDependency = Annotated[str, Depends(oauth2_scheme)]
 

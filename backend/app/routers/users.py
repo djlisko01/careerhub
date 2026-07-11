@@ -20,8 +20,3 @@ def create_user(new_user: LocalUserCreateSchema, service: UserService = Depends(
     return UserResponseSchema.model_validate(user)
 
 
-@router.get("/me")
-def read_current_user(current_user: UserResponseSchema = Depends(get_current_user)) -> UserResponseSchema:
-    return current_user
-
-
